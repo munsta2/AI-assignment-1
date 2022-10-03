@@ -1,48 +1,69 @@
-
-from tempfile import tempdir
-
-
-class node:
-    def __init__(self, top, right,bottom,left) -> None:
-        self.top = top
-        self.right = right
-        self.bottom = bottom
-        self. left = left
-        self.heuristic = min(top,left,right,bottom)
-        self.link = []
-        self.open = [True,True,True,True]
-    def print(self):
-        print(self.top,self.right,self.bottom,self.left)
-paired_values = []
-container = []
-with open('input.txt') as topo_file:
-    count = 0
-    for line in topo_file:
-        if count == 0:
-            n,m = map(int, line.strip().split(' '))
-           
-        else:
-            top,right,bottom,left = map(int, line.strip().split(' '))
-            paired_values = paired_values + [top,right,bottom,left]
-            container.append(node(top, right,bottom,left))
-        count = count + 1
-board = [[0 for x in range(m)] for y in range(n)]
+from tile import tile
 
 
+def main():
+    board = []
+    tiles = []
+    paired_values, board = prepare_problem_from_input_text('input.txt', board, tiles)
 
-print(n)
-print(m)
-for item in container:
-    item.print()
+    # for row in range(len(board)):
+    #     for col in range(len(board[row])):
+    #         board[row][col] = tiles[col+row*len(board[row])]
 
-for item in board:
-    print(item)
+    print_board(board)
 
 
-unique_values = []
-for value in paired_values:
-    if paired_values.count(value) == 1:
-        unique_values.append(value)
-heuristic_values = [x for x in paired_values if x not in unique_values]
-heuristic_values = set(heuristic_values)
-print(heuristic_values)
+def prepare_problem_from_input_text(file, board, tiles):
+    tile_values = []
+    with open(file) as topo_file:
+        count = 0
+        for line in topo_file:
+            if count == 0:
+                n, m = map(int, line.strip().split(' '))
+
+            else:
+                top, right, bottom, left = map(int, line.strip().split(' '))
+                tile_values = tile_values + [top, right, bottom, left]
+                tiles.append(tile(top, right, bottom, left, count))
+            count = count + 1
+    board = create_board(n, m, board)
+    return find_paired_values(tile_values), board
+
+
+def find_paired_values(tile_values):
+    unique_values = []
+    for value in tile_values:
+        if tile_values.count(value) == 1:
+            unique_values.append(value)
+    paired_values = [x for x in tile_values if x not in unique_values]
+    paired_values = set(paired_values)
+    return paired_values
+
+
+def create_board(row_size, column_size, board):
+    board = [[None] * row_size for i in range(column_size)]
+    return board
+
+
+# def generate_trees(start_tile, board, paired_values):
+#     for row in board:
+#         for col in row:
+#             pass
+#
+# def create_solution_tree(start_tile, board, paired_values):
+#     pass
+
+def print_board(board):
+    result = ""
+    for row in range(len(board)):
+        for col in range(len(board[row])):
+            if not board[row][col] is None:
+                result += (str(board[row][col].number)) + " "
+            else:
+                result += "E "
+        result += ('\n')
+    print(result)
+
+
+if __name__ == '__main__':
+    main()
