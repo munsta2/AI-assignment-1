@@ -1,25 +1,27 @@
-from enum import Enum
+from enum import IntEnum
 
 
 class tile:
     def __init__(self, top, right, bottom, left, number) -> None:
+        self.row = -1
+        self.col = -1
         self.position_values = [top, right, bottom, left]
         self.open = [True, True, True, True]
         self.number = number
 
     def minimum(self):
-        return min(self.top, self.right, self.bottom, self.left)
+        return min(self.position_values)
 
     def open_values(self):
         values = []
-        if self.open(tile_direction.TOP):
-            values.append(self.position_values(tile_direction.TOP))
-        if self.open(tile_direction.RIGHT):
-            values.append(self.position_values(tile_direction.RIGHT))
-        if self.open(tile_direction.BOTTOM):
-            values.append(self.position_values(tile_direction.BOTTOM))
-        if self.open(tile_direction.LEFT):
-            values.append(self.position_values(tile_direction.LEFT))
+        if self.open[int(tile_direction.TOP)]:
+            values.append(self.position_values[int(tile_direction.TOP)])
+        if self.open[int(tile_direction.RIGHT)]:
+            values.append(self.position_values[int(tile_direction.RIGHT)])
+        if self.open[int(tile_direction.BOTTOM)]:
+            values.append(self.position_values[int(tile_direction.BOTTOM)])
+        if self.open[int(tile_direction.LEFT)]:
+            values.append(self.position_values[int(tile_direction.LEFT)])
         return values
 
     def has_open_direction(self):
@@ -38,12 +40,16 @@ class tile:
         if input_direction == tile_direction.LEFT:
             return tile_direction.RIGHT
 
+    def set_position(self, in_row, in_col):
+        self.row = in_row
+        self.col = in_col
+
 
     def __str__(self):
         return str(self.number)
 
 
-class tile_direction(Enum):
+class tile_direction(IntEnum):
     TOP = 0
     RIGHT = 1
     BOTTOM = 2

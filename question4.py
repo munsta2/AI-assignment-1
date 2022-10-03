@@ -1,15 +1,17 @@
+import copy
 from tile import tile
-
+from states import state
+from states import find_adjacent as finderizer
+from tile import tile_direction
 
 def main():
     board = []
     tiles = []
     paired_values, board = prepare_problem_from_input_text('input.txt', board, tiles)
-
-    # for row in range(len(board)):
-    #     for col in range(len(board[row])):
-    #         board[row][col] = tiles[col+row*len(board[row])]
-
+    # root = state(0, board)
+    # root.add_tile(tiles[0], 0, 0)
+    # root.add_tile(tiles[1], 0, 1)
+    # print(root.used_tiles[0].open[1])
     print_board(board)
 
 
@@ -41,7 +43,7 @@ def find_paired_values(tile_values):
 
 
 def create_board(row_size, column_size, board):
-    board = [[None] * row_size for i in range(column_size)]
+    board = [[None] * column_size for i in range(row_size)]
     return board
 
 
