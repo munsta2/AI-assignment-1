@@ -76,10 +76,10 @@ class state:
         for usedtile in self.used_tiles:
             if usedtile.has_open_direction() and any(value in usedtile.open_values() for value in paired_values):
                 for matched_tile in tile_list:
-                    print("Match Test between", usedtile.number, matched_tile.number, has_match(usedtile, matched_tile))
+                    #print("Match Test between", usedtile.number, matched_tile.number, has_match(usedtile, matched_tile))
                     if has_match(usedtile, matched_tile) and self.unplaced_tiles[matched_tile.number-1]:
                         connection_check = self.valid_connection(usedtile, matched_tile)
-                        print(connection_check)
+                        #print(connection_check)
                         if connection_check[0]:
                             connection_direction = connection_check[1]
                             new_state = state(usedtile.position_values[int(connection_direction)], self.board, self.unplaced_tiles)
@@ -91,10 +91,10 @@ class state:
     def valid_connection(self,placed_tile,potential_tile):
         for direction in directions:
             opposite_direction = placed_tile.get_opposite_direction(direction)
-            print("Looking to the", direction, placed_tile.position_values[int(direction)], "to find", opposite_direction, potential_tile.position_values[int(opposite_direction)])
+            #print("Looking to the", direction, placed_tile.position_values[int(direction)], "to find", opposite_direction, potential_tile.position_values[int(opposite_direction)])
             if placed_tile.open[int(direction)] and potential_tile.open[int(opposite_direction)]:
                 if placed_tile.position_values[int(direction)] == potential_tile.position_values[int(opposite_direction)]:
-                    print("match found babyyyy")
+                    #print("match found babyyyy")
                     return True, direction
         return False, None
     def create_child_state(self):

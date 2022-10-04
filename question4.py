@@ -28,7 +28,7 @@ def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
     root.find_valid_children(tiles, paired_values)
     print(root.children)
     if len(root.children) > 0:
-        best_child = root.child[0]
+        best_child = root.children[0]
         for child in root.children:
             if (child.heuristic + child.cost) < (best_child.heuristic + best_child.cost):
                 best_child = child
