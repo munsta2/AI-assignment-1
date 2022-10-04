@@ -38,11 +38,11 @@ Class:  state()
 class state:
     def __init__(self, in_cost, in_board, in_unplaced) -> None:
         self.heuristic = 0
-        self.used_tiles = []
-        self.children = []
+        self.used_tiles = [] #List of Tile Objects
+        self.children = [] #List of State Objects
         self.cost = in_cost
-        self.unplaced_tiles = copy.deepcopy(in_unplaced)
-        self.board = copy.deepcopy(in_board)
+        self.unplaced_tiles = copy.deepcopy(in_unplaced) #List of Tile Objects
+        self.board = copy.deepcopy(in_board) #2D Array of Tiles
     '''
     Function:   add_tile()
     This function takes a tile object and the desired position. It generates a copy of the tile to be modified for
@@ -134,7 +134,7 @@ class state:
                             new_state.add_tile(matched_tile, new_coordinates[0], new_coordinates[1])
                             self.children.append(new_state)
                             print("Added child by placing", matched_tile.number, "at", new_coordinates,
-                                  "Cost: ", usedtile.position_values[int(connection_direction)])
+                                  "Cost:", usedtile.position_values[int(connection_direction)])
     
     '''
     Function:   valid_conection()

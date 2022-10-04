@@ -16,11 +16,13 @@ def main():
     print(root.unplaced_tiles)
     # print(root.used_tiles[0].open[1])
     print_board(board)
-    for row in board:
-        for col in row:
-            #A_Star()
+    for row in range(len(board)):
+        for col in range(len(board[row])):
+            print("Placing first tile at starting position", [row,col])
+            A_star(row, col, board, tiles, paired_values, unplaced_tiles)
+
             pass
-    A_star(0, 0, board, tiles, paired_values, unplaced_tiles)
+    # A_star(0, 0, board, tiles, paired_values, unplaced_tiles)
 
 '''
 Function:   A_star()
