@@ -22,6 +22,9 @@ def main():
             pass
     A_star(0, 0, board, tiles, paired_values, unplaced_tiles)
 
+'''
+Function:   A_star()
+'''
 def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
     root = state(0, board,unplaced_tiles)
     root.add_tile(tiles[0], row, col)
@@ -35,10 +38,19 @@ def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
 
     else:
         return None
+'''
+Function:   a_star_helper()
+'''
 def a_star_helper():
     pass
 
-
+'''
+Function:   prepare_problem_from_input_text()
+This function takes in an input file and parses the dimensions of our board. It then parses the tile values
+and generates an object to represent each tile. It calls create_board() to set the
+game board to the correct dimensions.
+Returns a list of integers for all tile values that have at least 1 pairing and the prepared board
+'''
 def prepare_problem_from_input_text(file, board, tiles):
     tile_values = []
     with open(file) as topo_file:
@@ -55,7 +67,12 @@ def prepare_problem_from_input_text(file, board, tiles):
     board = create_board(n, m, board)
     return find_paired_values(tile_values), board
 
-
+'''
+Function:   find_paired_values()
+This function takes in a list of integers and returns a list containing the integers
+that are not-unique (list contains the number at least twice).
+Returns a list of integers for non-unique values
+'''
 def find_paired_values(tile_values):
     unique_values = []
     for value in tile_values:
@@ -65,21 +82,20 @@ def find_paired_values(tile_values):
     paired_values = set(paired_values)
     return paired_values
 
-
+'''
+Function:   create_board()
+This function takes in a board object (2d array) and sets the board to the specified dimensions
+Returns a 2d array of Null (None) Objects of the requested dimensions
+'''
 def create_board(row_size, column_size, board):
     board = [[None] * column_size for i in range(row_size)]
     return board
 
-
-
-# def generate_trees(start_tile, board, paired_values):
-#     for row in board:
-#         for col in row:
-#             pass
-#
-# def create_solution_tree(start_tile, board, paired_values):
-#     pass
-
+'''
+Function:   print_board()
+This function takes in a board and iterates through the array, visualizing the state of the board.
+The tiles are represented by the tile number and empty spaces are represented by 'E'
+'''
 def print_board(board):
     result = ""
     for row in range(len(board)):

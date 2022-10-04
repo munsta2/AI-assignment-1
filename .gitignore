@@ -5,3 +5,5 @@
 .idea/modules.xml
 .idea/vcs.xml
 __pycache__/tile.cpython-38.pyc
+__pycache__/states.cpython-310.pyc
+__pycache__/tile.cpython-310.pyc
