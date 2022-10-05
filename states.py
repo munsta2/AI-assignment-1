@@ -38,10 +38,10 @@ Class:  state()
 class state:
     def __init__(self, in_cost, in_board, in_unplaced) -> None:
         self.heuristic = 0
-        self.used_tiles = [] #List of Tile Objects
+        self.used_tiles = [] #List of Tile Objects representing placed tiles
         self.children = [] #List of State Objects
         self.cost = in_cost
-        self.unplaced_tiles = copy.deepcopy(in_unplaced) #List of Tile Objects
+        self.unplaced_tiles = copy.deepcopy(in_unplaced) #List of Booleans representing unplaced tiles
         self.board = copy.deepcopy(in_board) #2D Array of Tiles
     '''
     Function:   add_tile()
@@ -50,12 +50,12 @@ class state:
     With the new tile added it will update the states calculated heuristic and place the tile on the states board,
     updating tile facings as needed.
     '''
-    def add_tile(self, tile, row, col):
+    def add_tile(self, tile, row, col, tile_object_list):
         copied_tile = copy.deepcopy(tile)
         copied_tile.set_position(row, col)
         self.used_tiles.append(copied_tile)
         self.unplaced_tiles[copied_tile.number-1] = False
-        self.calculate_heuristic()
+        self.calculate_heuristic(tile_object_list)
         self.place_tile_fix_openings(copied_tile, self.board)
 
     '''
@@ -95,10 +95,15 @@ class state:
     current state by taking the minimum value of each tile face and calculating the sum. Sets the state's heuristic
     variable to the calculate value.
     '''
-    def calculate_heuristic(self):
+    def calculate_heuristic(self, tile_object_list):
         self.heuristic = 0
-        for tile in self.used_tiles:
-            self.heuristic += tile.minimum()
+        # for tile in self.used_tiles:
+        #     self.heuristic += tile.minimum()
+        for i in range(len(self.unplaced_tiles)):
+            if self.unplaced_tiles[i]: # Tile has not been placed if true
+                self.heuristic += tile_object_list[i].minimum()
+
+
 
     '''
     Function:   copy_used_tiles()
@@ -117,10 +122,10 @@ class state:
     at a cost of the connection.
     
     '''
-    def find_valid_children(self, tile_list, paired_values):
+    def find_valid_children(self, tile_object_list, paired_values):
         for usedtile in self.used_tiles:
             if usedtile.has_open_direction() and any(value in usedtile.open_values() for value in paired_values):
-                for matched_tile in tile_list:
+                for matched_tile in tile_object_list:
                     #print("Match Test between", usedtile.number, matched_tile.number, has_match(usedtile, matched_tile))
                     if has_match(usedtile, matched_tile) and self.unplaced_tiles[matched_tile.number-1]:
                         #TODO: Only checking the first valid connection, may have to check if there are multiple valid
@@ -131,10 +136,10 @@ class state:
                             connection_direction = connection_check[1]
                             new_state = state(usedtile.position_values[int(connection_direction)], self.board, self.unplaced_tiles)
                             new_coordinates = find_adjacent(usedtile.row, usedtile.col, connection_direction)
-                            new_state.add_tile(matched_tile, new_coordinates[0], new_coordinates[1])
+                            new_state.add_tile(matched_tile, new_coordinates[0], new_coordinates[1], tile_object_list)
                             self.children.append(new_state)
                             print("Added child by placing", matched_tile.number, "at", new_coordinates,
-                                  "Cost:", usedtile.position_values[int(connection_direction)])
+                                  "Cost:", usedtile.position_values[int(connection_direction)], "Heuristic:", new_state.heuristic)
     
     '''
     Function:   valid_conection()

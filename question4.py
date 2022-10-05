@@ -5,14 +5,14 @@ from tile import tile_direction
 
 
 def main():
-    tiles = []
-    paired_values, board = prepare_problem_from_input_text('input.txt', tiles)
+    tile_objects = []
+    paired_values, board = prepare_problem_from_input_text('input.txt', tile_objects)
     board_size = len(board) * len(board[0])
     unplaced_tiles = [True] * board_size
     for row in range(len(board)):
         for col in range(len(board[row])):
             print("Placing first tile at starting position", [row, col])
-            A_star(row, col, board, tiles, paired_values, unplaced_tiles)
+            A_star(row, col, board, tile_objects, paired_values, unplaced_tiles)
             print('\n')
     # A_star(0, 0, board, tiles, paired_values, unplaced_tiles)
 
@@ -22,7 +22,7 @@ Function:   A_star()
 '''
 def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
     root = state(0, board, unplaced_tiles)
-    root.add_tile(tiles[0], row, col)
+    root.add_tile(tiles[0], row, col, tiles)
     root.find_valid_children(tiles, paired_values)
     # print(root.children)
     # print_board(root.board)
