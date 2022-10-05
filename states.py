@@ -36,9 +36,9 @@ def find_adjacent(row, col, direction):
 Class:  state()
 '''
 class state:
-    def __init__(self, in_cost, in_board, in_unplaced) -> None:
+    def __init__(self, in_cost, in_used, in_board, in_unplaced) -> None:
         self.heuristic = 0
-        self.used_tiles = [] #List of Tile Objects representing placed tiles
+        self.used_tiles = copy.deepcopy(in_used) #List of Tile Objects representing placed tiles
         self.children = [] #List of State Objects
         self.cost = in_cost
         self.unplaced_tiles = copy.deepcopy(in_unplaced) #List of Booleans representing unplaced tiles
@@ -123,23 +123,23 @@ class state:
     
     '''
     def find_valid_children(self, tile_object_list, paired_values):
+        # print("Amount of used tiles in this state", len(self.used_tiles))
         for usedtile in self.used_tiles:
-            if usedtile.has_open_direction() and any(value in usedtile.open_values() for value in paired_values):
-                for matched_tile in tile_object_list:
-                    #print("Match Test between", usedtile.number, matched_tile.number, has_match(usedtile, matched_tile))
-                    if has_match(usedtile, matched_tile) and self.unplaced_tiles[matched_tile.number-1]:
-                        #TODO: Only checking the first valid connection, may have to check if there are multiple valid
-                        # connections for the two tiles, and add a child for each
-                        connection_check = self.valid_connection(usedtile, matched_tile)
-                        #print(connection_check)
-                        if connection_check[0]:
-                            connection_direction = connection_check[1]
-                            new_state = state(usedtile.position_values[int(connection_direction)], self.board, self.unplaced_tiles)
-                            new_coordinates = find_adjacent(usedtile.row, usedtile.col, connection_direction)
-                            new_state.add_tile(matched_tile, new_coordinates[0], new_coordinates[1], tile_object_list)
-                            self.children.append(new_state)
-                            print("Added child by placing", matched_tile.number, "at", new_coordinates,
-                                  "Cost:", usedtile.position_values[int(connection_direction)], "Heuristic:", new_state.heuristic)
+            # print("Checking conections for tile", usedtile.number, "Open board around tile?:", usedtile.has_open_direction())
+            if usedtile.has_open_direction():
+                if usedtile.are_open_directions_paired(paired_values):
+                    for i in range(len(self.unplaced_tiles)):
+                        if self.unplaced_tiles[i]:
+                            if has_match(usedtile, tile_object_list[i]):
+                                connection_check = self.valid_connection(usedtile, tile_object_list[i])
+                                if connection_check[0]:
+                                    for connection_direction in connection_check[1]:
+                                        new_state = state(usedtile.position_values[int(connection_direction)]+self.cost, self.used_tiles, self.board, self.unplaced_tiles)
+                                        new_coordinates = find_adjacent(usedtile.row, usedtile.col, connection_direction)
+                                        new_state.add_tile(tile_object_list[i], new_coordinates[0], new_coordinates[1], tile_object_list)
+                                        print("New State Found by attaching", usedtile.number, "to", tile_object_list[i].number, "at", new_coordinates, connection_direction)
+                                        self.children.append(new_state)
+
     
     '''
     Function:   valid_conection()
@@ -148,13 +148,14 @@ class state:
     direction of the pairing relative to the placed_tile.
     '''
     def valid_connection(self,placed_tile,potential_tile):
+        valid_directions = []
+        found_valid = False
         for direction in directions:
             opposite_direction = get_opposite_direction(direction)
             #print("Looking to the", direction, placed_tile.position_values[int(direction)], "to find", opposite_direction, potential_tile.position_values[int(opposite_direction)])
             if placed_tile.open[int(direction)] and potential_tile.open[int(opposite_direction)]:
                 if placed_tile.position_values[int(direction)] == potential_tile.position_values[int(opposite_direction)]:
                     #print("match found babyyyy")
-                    return True, direction
-        return False, None
-    def create_child_state(self):
-        pass
+                    found_valid = True
+                    valid_directions.append(direction)
+        return found_valid, valid_directions

@@ -1,4 +1,6 @@
 import copy
+import sys
+
 from tile import tile
 from states import state
 from tile import tile_direction
@@ -11,36 +13,56 @@ def main():
     unplaced_tiles = [True] * board_size
     for row in range(len(board)):
         for col in range(len(board[row])):
-            print("Placing first tile at starting position", [row, col])
-            A_star(row, col, board, tile_objects, paired_values, unplaced_tiles)
-            print('\n')
-    # A_star(0, 0, board, tiles, paired_values, unplaced_tiles)
+            test = A_star(row, col, board, tile_objects, paired_values, unplaced_tiles)
+            print(int(test))
 
 
 '''
 Function:   A_star()
 '''
 def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
-    root = state(0, board, unplaced_tiles)
+    root = state(0, [], board, unplaced_tiles)
     root.add_tile(tiles[0], row, col, tiles)
-    root.find_valid_children(tiles, paired_values)
-    # print(root.children)
-    # print_board(root.board)
-    if len(root.children) > 0:
-        best_child = root.children[0]
-        for child in root.children:
-            if (child.heuristic + child.cost) < (best_child.heuristic + best_child.cost):
-                best_child = child
-
-    else:
-        return None
+    print("Root Board")
+    print_board(root.board)
+    return(a_star_helper(root, tiles, paired_values))
 
 
 '''
 Function:   a_star_helper()
 '''
-def a_star_helper():
-    pass
+def a_star_helper(state, tile_objects, paired_values):
+    state.find_valid_children(tile_objects, paired_values)
+    if not any(state.unplaced_tiles):
+        return state.cost
+    if not state.children and any(state.unplaced_tiles):
+        return sys.maxsize
+    child_cost = []
+    opened_children = [False] * len(state.children)
+    for child in state.children:
+        child_cost.append(child.heuristic + child.cost)
+    min_value = min(child_cost)
+    min_index = child_cost.index(min_value)
+    print("is our best guess, cost to get here", state.children[min_index].cost)
+    print_board(state.children[min_index].board)
+    true_cost = a_star_helper(state.children[min_index], tile_objects, paired_values)
+    opened_children[min_index] = True
+    repeat = True
+    while repeat:
+        repeat = False
+        next_child = None
+        for i in range(len(state.children)):
+            if true_cost > (state.children[i].heuristic + state.children[i].cost) and not opened_children[i]:
+                print("Found better alternative", opened_children, "child index", i)
+                next_child = state.children[i]
+                next_child_index = i
+                repeat = True
+        if next_child:
+            print("Opening this alternative")
+            print_board(next_child.board)
+            true_cost = a_star_helper(next_child, tile_objects, paired_values)
+            opened_children[next_child_index] = True
+    return true_cost
 
 
 '''

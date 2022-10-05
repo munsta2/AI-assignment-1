@@ -60,10 +60,7 @@ class tile:
     Returns true if one of the tile facings are open
     '''
     def has_open_direction(self):
-        for direction in self.open:
-            if direction:
-                return True
-        return False
+        return max(self.open)
 
     '''
     Function:   tile.set_position()
@@ -73,13 +70,19 @@ class tile:
         self.row = in_row
         self.col = in_col
 
-    '''
-    Function:   override __str__
-    This functions overrides the default print function and returns
-    the tile number as a string when printing a tile object.
-    '''
-    def __str__(self):
-        return str(self.number)
+    # '''
+    # Function:   override __str__
+    # This functions overrides the default print function and returns
+    # the tile number as a string when printing a tile object.
+    # '''
+    # def __str__(self):
+    #     return str(self.number)
+
+    def are_open_directions_paired(self, paired_values):
+        for value in self.open_values():
+            if value in paired_values:
+                return True
+        return False
 
 
 '''
