@@ -144,6 +144,9 @@ class State:
             if placed_tile.open[int(direction)] and potential_tile.open[int(opposite_direction)]:
                 # If the edge values are equal for the opposite directions
                 if placed_tile.position_values[int(direction)] == potential_tile.position_values[int(opposite_direction)]:
+                    # TODO: In current interpretation, only the edges being used for cost need to match. If this
+                    #  interpretation changes, we need to add additional checks so that all adjacent sides of the new
+                    #  tile match surrounding tiles
                     found_valid = True
                     valid_directions.append(direction)
         return found_valid, valid_directions

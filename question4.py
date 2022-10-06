@@ -3,10 +3,11 @@ import timeit
 from tile import Tile
 from states import State
 
+max_child_Size = 0
 
 def main():
     start = timeit.default_timer()
-    sys.setrecursionlimit(5000)
+    sys.setrecursionlimit(10000)
     tile_objects = []
     paired_values, board = prepare_problem_from_input_text('input.txt', tile_objects)
     # board_size = len(board) * len(board[0])
@@ -28,6 +29,7 @@ def main():
 
     stop = timeit.default_timer()
     print('Time: ', stop - start)
+    print(max_child_Size)
 
 
 def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
@@ -64,13 +66,38 @@ def a_star_helper(in_state, tile_objects, paired_values, fringe_children):
         # Test if a child in the fringe is identical in tile placement
         # of a possible child of the current state. This is an aggressive tree trimming
         # TODO: Note that just because the board looks the same, doesn't mean the cost to arrive at that state
-        #  is the same. May need to adjust this logic if the trimming of the tree is too greedy
+        #  is the same. May need to adjust this logic if the trimming of the tree is too
         identity_list = []
         for fringe in fringe_children:
             identity_list.append(identify_board(fringe.board))
         for child in in_state.children:
             if not identify_board(child.board) in identity_list:
                 fringe_children.append(child)
+            else:
+                # There exists a duplicate board state, we need to keep only the most efficient version
+                duplicate_state_object_list_for_comparison = [] #aka bad boi
+                # While a duplicate state exists, remove them and
+                while(identify_board(child.board) in identity_list):
+                    # Find the index of the duplicate state
+                    index_of_duplicate = identity_list.index(identify_board(child.board))
+
+                    # Remove the duplicate state from the fringe, and our identity list
+                    popped_state = fringe_children.pop(index_of_duplicate)
+                    identity_list.pop(index_of_duplicate)
+
+                    # Keep a record of the duplicate states in bad boi
+                    duplicate_state_object_list_for_comparison.append(popped_state)
+
+                # Find the most efficient duplicate state
+                min_state = duplicate_state_object_list_for_comparison[0]
+                min_cost = min_state.cost
+                for state in duplicate_state_object_list_for_comparison:
+                    if state.cost < min_cost:
+                        min_state = state
+                        min_cost = state.cost
+
+                #only re-add the most effecient state to our fringe children
+                fringe_children.append(min_state)
 
     # Find the best fringe to expand based on cost and heuristic
     min_fringe = fringe_children[0]
@@ -80,6 +107,9 @@ def a_star_helper(in_state, tile_objects, paired_values, fringe_children):
         elif child.cost + child.heuristic == min_fringe.cost + min_fringe.heuristic:
             if child.heuristic < min_fringe.heuristic:
                 min_fringe = child
+    global max_child_Size
+    if max_child_Size < len(fringe_children):
+        max_child_Size = len(fringe_children)
     fringe_children.remove(min_fringe)
     # print("Trying Fringe")
     # print_board(min_fringe.board)
