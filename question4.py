@@ -21,7 +21,7 @@ def main():
         for col in range(len(board[row])):
             result = A_star(row, col, board, tile_objects, paired_values, unplaced_tiles)
             final_values.append(result)
-
+    final_values.append(result)
     if min(final_values) >= sys.maxsize:
         print("No valid solutions for problem")
     else:
@@ -45,39 +45,61 @@ def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
 
 
 def a_star_helper(in_state, tile_objects, paired_values, fringe_children):
-    """
-    Function:   a_star_helper()
-    a_star_helper() is a recursive function that searches each fringe child based on a fringe node where the state
-    has the lowest f(n) value, that is where the cost + heuristic is the least
-    """
+    # Open the root node and add it's children to the fringe_children
     in_state.find_valid_children(tile_objects, paired_values)
-    # Base Cases
-    if not any(in_state.unplaced_tiles):  # All tiles have been placed
-        print("Possible Solution Found, cost:", in_state.cost)
-        print_board(in_state.board)
-        return in_state.cost
-    if not in_state.children and any(in_state.unplaced_tiles):  # No children possible, not all tiles placed
+    fringe_children = fringe_children + in_state.children
+    # If the root note does not have any valid children, the problem cannot be solved at this position
+    if not fringe_children:
         return sys.maxsize
 
-    # Keep track of children in the fringes
-    if not fringe_children:
-        fringe_children = fringe_children + in_state.children
-    else:
-        # Test if a child in the fringe is identical in tile placement
-        # of a possible child of the current state. This is an aggressive tree trimming
-        # TODO: Note that just because the board looks the same, doesn't mean the cost to arrive at that state
-        #  is the same. May need to adjust this logic if the trimming of the tree is too
+    goal_states = []
+    while(True):
+        # If no states exist in the fringe_children, the problem cannot be solved with these positions
+        if not fringe_children:
+            return sys.maxsize
+
+        # Find the best child state based on the cost and the heuristic element
+        chosen_state = fringe_children[0]
+        minimum_fn = fringe_children[0].cost + chosen_state.heuristic
+        for child in fringe_children:
+            if minimum_fn > (child.cost + child.heuristic):
+                chosen_state = child
+                minimum_fn = child.cost + child.heuristic
+
+        # If we have found goal states, check to see if these are better than any possible fringe state
+        if goal_states:
+            # Find out best goal state
+            minimum_goal_cost = goal_states[0].cost
+            best_goal = goal_states[0]
+            for goal in goal_states:
+                if minimum_goal_cost > goal.cost:
+                    minimum_goal_cost = goal.cost
+                    best_goal = goal
+            # If the best goal state is better than any fringe state, A* has completed
+            if minimum_goal_cost < minimum_fn:
+                print("Best Solution Cost:", best_goal.cost, "Board State:")
+                print_board(best_goal.board)
+                return best_goal.cost
+
+        # Test to see if our best state is a goal state
+        if not any(chosen_state.unplaced_tiles):
+            goal_states.append(chosen_state)
+
+        # Remove the best state from the fringe state. Expand the state by adding it's children to the fringe
+        fringe_children.remove(chosen_state)
+        chosen_state.find_valid_children(tile_objects, paired_values)
+        # Test the new states to see if the board state is identical in tile placement to existing fringe states
         identity_list = []
         for fringe in fringe_children:
             identity_list.append(identify_board(fringe.board))
-        for child in in_state.children:
+        for child in chosen_state.children:
             if not identify_board(child.board) in identity_list:
                 fringe_children.append(child)
             else:
                 # There exists a duplicate board state, we need to keep only the most efficient version
-                duplicate_state_object_list_for_comparison = [] #aka bad boi
+                duplicate_state_object_list_for_comparison = []  # aka bad boi
                 # While a duplicate state exists, remove them and
-                while(identify_board(child.board) in identity_list):
+                while (identify_board(child.board) in identity_list):
                     # Find the index of the duplicate state
                     index_of_duplicate = identity_list.index(identify_board(child.board))
 
@@ -95,25 +117,15 @@ def a_star_helper(in_state, tile_objects, paired_values, fringe_children):
                     if state.cost < min_cost:
                         min_state = state
                         min_cost = state.cost
-
-                #only re-add the most effecient state to our fringe children
+                # only re-add the most effecient state to our fringe children
                 fringe_children.append(min_state)
 
-    # Find the best fringe to expand based on cost and heuristic
-    min_fringe = fringe_children[0]
-    for child in fringe_children:
-        if child.cost + child.heuristic < min_fringe.cost + min_fringe.heuristic:
-            min_fringe = child
-        elif child.cost + child.heuristic == min_fringe.cost + min_fringe.heuristic:
-            if child.heuristic < min_fringe.heuristic:
-                min_fringe = child
-    global max_child_Size
-    if max_child_Size < len(fringe_children):
-        max_child_Size = len(fringe_children)
-    fringe_children.remove(min_fringe)
-    # print("Trying Fringe")
-    # print_board(min_fringe.board)
-    return a_star_helper(min_fringe, tile_objects, paired_values, fringe_children)
+        global max_child_Size
+        if max_child_Size < len(fringe_children):
+            max_child_Size = len(fringe_children)
+        # repeat while loop
+
+
 
 
 def prepare_problem_from_input_text(file, tiles):
@@ -178,7 +190,8 @@ def print_board(board):
                 result += (str(board[row][col].number)) + " "
             else:
                 result += "E "
-        result += '\n'
+        if not row == len(board)-1:
+            result += '\n'
     print(result)
 
 
