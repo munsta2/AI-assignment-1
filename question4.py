@@ -28,8 +28,8 @@ def main():
         print("Lowest Solution Found", min(final_values))
 
     stop = timeit.default_timer()
-    print('Time: ', stop - start)
-    print(max_child_Size)
+    print("Time: ", stop - start)
+    print("Maximum number of fringe children during runtime:", max_child_Size)
 
 
 def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
