@@ -16,16 +16,20 @@ def main():
     # if a tile has been placed
     unplaced_tiles = [True] * len(tile_objects)
 
-    final_values = []
+    final_results = []
     for row in range(len(board)):
         for col in range(len(board[row])):
             result = A_star(row, col, board, tile_objects, paired_values, unplaced_tiles)
-            final_values.append(result)
-    final_values.append(result)
+            final_results.append(result)
+    final_values = []
+    for result in final_results:
+        final_values.append(result[0])
     if min(final_values) >= sys.maxsize:
         print("No valid solutions for problem")
     else:
         print("Lowest Solution Found", min(final_values))
+        index = final_values.index(min(final_values))
+        print_board(final_results[index][1].board)
 
     stop = timeit.default_timer()
     print("Time: ", stop - start)
@@ -50,13 +54,13 @@ def a_star_helper(in_state, tile_objects, paired_values, fringe_children):
     fringe_children = fringe_children + in_state.children
     # If the root note does not have any valid children, the problem cannot be solved at this position
     if not fringe_children:
-        return sys.maxsize
+        return [sys.maxsize, None]
 
     goal_states = []
     while(True):
         # If no states exist in the fringe_children, the problem cannot be solved with these positions
         if not fringe_children:
-            return sys.maxsize
+            return [sys.maxsize, None]
 
         # Find the best child state based on the cost and the heuristic element
         chosen_state = fringe_children[0]
@@ -77,9 +81,10 @@ def a_star_helper(in_state, tile_objects, paired_values, fringe_children):
                     best_goal = goal
             # If the best goal state is better than any fringe state, A* has completed
             if minimum_goal_cost < minimum_fn:
-                print("Best Solution Cost:", best_goal.cost, "Board State:")
+                print("Board State:")
                 print_board(best_goal.board)
-                return best_goal.cost
+                print("Solution cost:", best_goal.cost)
+                return [best_goal.cost, best_goal]
 
         # Test to see if our best state is a goal state
         if not any(chosen_state.unplaced_tiles):
