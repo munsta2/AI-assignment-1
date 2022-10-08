@@ -14,11 +14,15 @@ def main():
     # if a tile has been placed
     unplaced_tiles = [True] * len(tile_objects)
 
+    # Attempt the algorithm at all positions of the board. While placing the first tile in a position where some edges
+    # with matches are blocked may not be the best state, there is still a possibility it leads to a valid goal
     final_results = []
     for row in range(len(board)):
         for col in range(len(board[row])):
             result = A_star(row, col, board, tile_objects, paired_values, unplaced_tiles)
             final_results.append(result)
+
+    # Storing the final results and outputting for clarity
     final_values = []
     for result in final_results:
         final_values.append(result[0])
@@ -29,6 +33,7 @@ def main():
         index = final_values.index(min(final_values))
         print_board(final_results[index][1].board)
 
+    # Time it took to run program for debugging
     stop = timeit.default_timer()
     print("Time: ", stop - start)
     print("Maximum number of fringe children during runtime:", max_child_Size)
@@ -38,8 +43,10 @@ def A_star(row, col, board, tiles, paired_values, unplaced_tiles):
     """
     Function:   A_star()
     """
+    # Create a root node for the starting position and add the first tile to that position.
     root = State(0, [], board, unplaced_tiles)
     root.add_tile(tiles[0], row, col, tiles, paired_values)
+    # Run A* search on this starting state
     print("Trying Start Position:", [row, col])
     # print_board(root.board)
     fringe_children = []
