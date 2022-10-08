@@ -7,7 +7,6 @@ max_child_Size = 0
 
 def main():
     start = timeit.default_timer()
-    sys.setrecursionlimit(10000)
     tile_objects = []
     paired_values, board = prepare_problem_from_input_text('input.txt', tile_objects)
     # board_size = len(board) * len(board[0])
